@@ -55,6 +55,7 @@ function add_users_to_list() {
 			'body'   => array(
 				'email_address' => $user->user_email,
 				'status_if_new' => 'subscribed',
+				'status' => 'subscribed',
 			),
 		);
 
@@ -74,7 +75,7 @@ function add_users_to_list() {
 		$operations[] = $operation;
 	}
 	$response = array(
-		'count' => count( $operations ),
+		'count'    => count( $operations ),
 		'response' => $mailchimp->batch( $operations ),
 	);
 	return $response;
@@ -91,15 +92,19 @@ function delete_users_from_list() {
 	foreach ( $users as $user ) {
 		$subscriber_hash = $mailchimp::subscriber_hash( $user->user_email );
 
-		$operation = array(
-			'method' => 'DELETE',
+		$operation    = array(
+			'method' => 'PUT',
 			'path'   => "/lists/$list_id/members/$subscriber_hash",
+			'body'   => json_encode(
+				array(
+					'status' => 'unsubscribed',
+				)
+			),
 		);
-
 		$operations[] = $operation;
 	}
 	$response = array(
-		'count' => count( $operations ),
+		'count'    => count( $operations ),
 		'response' => $mailchimp->batch( $operations ),
 	);
 	return $response;
