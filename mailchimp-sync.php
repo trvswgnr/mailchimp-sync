@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: UnionCentrics - Mailchimp Sync
- * Plugin URI: https://github.com/trvswgnr/mailchimp-sync.git
+ * Plugin URI: https://github.com/icentrics/mailchimp-sync.git
  * Description: Sync contacts between WordPress and Mailchimp.
  * Version: 1.0.0
  * Author: UnionCentrics.com
@@ -45,7 +45,7 @@ function mcs_admin_page() {
 	$roles           = get_role_names();
 	if ( isset( $_POST['save_api_key'] ) ) {
 		$api_key = filter_input( INPUT_POST, 'api_key', FILTER_SANITIZE_STRING );
-		file_put_contents( MCSYNC_DIR . 'key.php', "<?php\n\$api_key = '$api_key';\n" );
+		file_put_contents( MCSYNC_DIR . 'data/key.php', "<?php\n\$api_key = '$api_key';\n" );
 		echo '<script>window.location.reload();</script>';
 	}
 	if ( isset( $_POST['get_role_count'] ) ) {
