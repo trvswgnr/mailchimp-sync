@@ -61,7 +61,7 @@ class Mailchimp_API {
 	 * @param object $data Data to post.
 	 * @return $response
 	 */
-	public function post( string $endpoint, object $data ) {
+	public function post( string $endpoint, $data ) {
 		$curl = curl_init();
 
 		curl_setopt_array(
@@ -97,7 +97,7 @@ class Mailchimp_API {
 	 * @param object $data Data to update.
 	 * @return $response
 	 */
-	public function put( string $endpoint, object $data ) {
+	public function put( string $endpoint, $data ) {
 		$curl = curl_init();
 
 		curl_setopt_array(
@@ -133,7 +133,7 @@ class Mailchimp_API {
 	 * @see $this->put
 	 * @return $response
 	 */
-	public function update( string $endpoint, object $data ) {
+	public function update( string $endpoint, $data ) {
 		$response = $this->put( $endpoint, $data );
 		return $response;
 	}
@@ -175,7 +175,7 @@ class Mailchimp_API {
 	 * @param object $data Data to update.
 	 * @return $response
 	 */
-	public function add_or_update_member( object $data ) {
+	public function add_or_update_member( $data ) {
 		$subscriber_hash = self::subscriber_hash( $data->email_address );
 		$endpoint        = "lists/{$this->list_id}/members/$subscriber_hash";
 		$response        = $this->put( $endpoint, $data );
@@ -233,9 +233,8 @@ class Mailchimp_API {
 	 * @return $response
 	 */
 	public function batch( array $operations ) {
-		$data = (object) array(
-			'operations' => $operations,
-		);
+		$data = new stdClass();
+		$data->operations = $operations;
 		$response = $this->post( 'batches', $data );
 		return $response;
 	}
