@@ -226,9 +226,16 @@ class Mailchimp_API {
 		return $response;
 	}
 
+	/**
+	 * Batch operations
+	 *
+	 * @param array $operations Array of operations to run.
+	 * @return $response
+	 */
 	public function batch( array $operations ) {
-		$data = new stdClass();
-		$data->operations = $operations;
+		$data = (object) array(
+			'operations' => $operations,
+		);
 		$response = $this->post( 'batches', $data );
 		return $response;
 	}
