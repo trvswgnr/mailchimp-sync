@@ -20,9 +20,13 @@ class Mailchimp_API {
 	 * @param string $list_id Mailchimp audience/list ID.
 	 */
 	public function __construct( string $list_id = '' ) {
-		if ( ! $list_id ) {
-			die( 'Mailchimp Sync Error: Please provide a list ID.' );
-		}
+		// if ( ! $list_id ) {
+		// die( 'Mailchimp Sync Error: Please provide a list ID.' );
+		// }
+		// $this->list_id = $list_id;
+	}
+
+	public function set_list_id( $list_id ) {
 		$this->list_id = $list_id;
 	}
 
@@ -159,6 +163,12 @@ class Mailchimp_API {
 		return $response;
 	}
 
+
+	public function get_lists() {
+		$response = $this->get( 'lists' );
+		return $response;
+	}
+
 	/**
 	 * Add or update member
 	 *
@@ -181,7 +191,6 @@ class Mailchimp_API {
 		$count = $this->get( "lists/{$this->list_id}" )->stats->member_count;
 		return $count;
 	}
-
 
 	/**
 	 * Get all members
@@ -214,6 +223,13 @@ class Mailchimp_API {
 		$list_id         = ! $list_id ? $this->list_id : $list_id;
 		$subscriber_hash = self::subscriber_hash( $email );
 		$response        = $this->get( "lists/{$this->list_id}/members/$subscriber_hash" );
+		return $response;
+	}
+
+	public function batch( array $operations ) {
+		$data = new stdClass();
+		$data->operations = $operations;
+		$response = $this->post( 'batches', $data );
 		return $response;
 	}
 

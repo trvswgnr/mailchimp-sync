@@ -5,5 +5,8 @@
  * @package mailchimp-sync
  */
 
-define( 'API_KEY', '8fa74a59d8d5d637733c86eb06f7b435-us4' );
+require_once 'key.php';
+
+define( 'API_KEY', $api_key );
 define( 'API_URL', 'https://us4.api.mailchimp.com/3.0/' );
+define( 'MCSYNC_DIR', dirname( __FILE__ ) . '/' );
