@@ -47,8 +47,7 @@ function mcs_admin_menu() {
 function mcs_admin_page() {
 	global $mailchimp;
 	global $response;
-	$mailchimp_lists = $mailchimp->get_lists()->lists;
-	$roles           = get_role_names();
+	$roles = get_role_names();
 	if ( isset( $_POST['save_api_key'] ) ) {
 		$api_key = filter_input( INPUT_POST, 'api_key', FILTER_SANITIZE_STRING );
 		file_put_contents( MCSYNC_DIR . 'data/key.php', "<?php\n\$api_key = '$api_key';\n" );
@@ -77,6 +76,7 @@ function mcs_admin_page() {
 		$auth = $mailchimp->get();
 		if ( isset( $auth->account_id ) ) {
 			echo '<span style="color: green;">Your Mailchimp API Key is valid.</span>';
+			$mailchimp_lists = $mailchimp->get_lists()->lists;
 		} else {
 			echo '<span style="color:red;">Please enter a valid Mailchimp API Key.</span>';
 			return false;
