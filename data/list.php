@@ -1,0 +1,2 @@
+<?php
+$mcsync_list = '';
