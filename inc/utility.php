@@ -31,57 +31,88 @@ function get_users_by_role( $role = 'administrator' ) {
 	return $users;
 }
 
+/**
+ * Generate random hash
+ *
+ * @param integer $len Length of hash.
+ * @return $hash
+ */
 function generate_hash( $len = 10 ) {
 	$hash = substr( md5( openssl_random_pseudo_bytes( 20 ) ), -$len );
 	return $hash;
 }
 
-
+/**
+ * Undocumented function
+ *
+ * @return $response
+ */
 function add_users_to_list() {
 	global $mailchimp;
 	$f          = FILTER_SANITIZE_STRING;
 	$list_id    = filter_input( INPUT_POST, 'mailchimp_list', $f );
 	$user_role  = filter_input( INPUT_POST, 'wp_role', $f );
+	$tag_to_add = isset( $_POST['mc_tags'] ) ? filter_input( INPUT_POST, 'mc_tags', $f ) : false;
 	$users      = get_users_by_role( $user_role );
+
 	$operations = array();
+
 	foreach ( $users as $user ) {
-		$user_display_name = ! empty( $user->display_name ) ? explode( ' ', $user->display_name ) : false;
-		$user_firstname    = $user_display_name ? $user_display_name[0] : false;
-		$user_lastname     = isset( $user_display_name[1] ) ? $user_display_name[1] : false;
-		$subscriber_hash   = $mailchimp::subscriber_hash( $user->user_email );
-		$operation         = array(
+		$user_display_name  = ! empty( $user->display_name ) ? explode( ' ', $user->display_name ) : false;
+		$user_firstname     = $user_display_name ? $user_display_name[0] : false;
+		$user_lastname      = isset( $user_display_name[1] ) ? $user_display_name[1] : false;
+		$subscriber_hash    = $mailchimp::subscriber_hash( $user->user_email );
+
+		$add_update_member = array(
 			'method' => 'PUT',
 			'path'   => "/lists/$list_id/members/$subscriber_hash",
 			'body'   => array(
 				'email_address' => $user->user_email,
 				'status_if_new' => 'subscribed',
-				'status' => 'subscribed',
+				'status'        => 'subscribed',
 			),
 		);
 
 		if ( $user_display_name ) {
-			$operation['body']['merge_fields'] = array();
+			$add_update_member['body']['merge_fields'] = array();
 		}
 		if ( $user_firstname ) {
-			$operation['body']['merge_fields']['FNAME'] = $user_firstname;
+			$add_update_member['body']['merge_fields']['FNAME'] = $user_firstname;
 		}
-
 		if ( $user_lastname ) {
-			$operation['body']['merge_fields']['LNAME'] = $user_lastname;
+			$add_update_member['body']['merge_fields']['LNAME'] = $user_lastname;
 		}
 
-		$operation['body'] = json_encode( $operation['body'] );
+		$add_update_member['body'] = json_encode( $add_update_member['body'] );
 
-		$operations[] = $operation;
+		$operations[] = $add_update_member;
+
+		if ( $tag_to_add ) {
+			$add_tag_to_member         = array(
+				'method' => 'POST',
+				'path'   => "/lists/{$list_id}/segments/{$tag_to_add}/members",
+				'body'   => array(
+					'email_address' => $user->user_email,
+				),
+			);
+			$add_tag_to_member['body'] = json_encode( $add_tag_to_member['body'] );
+			$operations[]            = $add_tag_to_member;
+		}
 	}
+
 	$response = array(
 		'count'    => count( $operations ),
 		'response' => $mailchimp->batch( $operations ),
 	);
+
 	return $response;
 }
 
-
+/**
+ * Delete users from MailChimp list
+ *
+ * @return $response
+ */
 function delete_users_from_list() {
 	global $mailchimp;
 	$f          = FILTER_SANITIZE_STRING;
@@ -92,7 +123,7 @@ function delete_users_from_list() {
 	foreach ( $users as $user ) {
 		$subscriber_hash = $mailchimp::subscriber_hash( $user->user_email );
 
-		$operation    = array(
+		$operation = array(
 			'method' => 'PUT',
 			'path'   => "/lists/$list_id/members/$subscriber_hash",
 			'body'   => json_encode(
@@ -101,10 +132,11 @@ function delete_users_from_list() {
 				)
 			),
 		);
+
 		$operations[] = $operation;
 	}
 	$response = array(
-		'count'    => count( $operations ),
+		'users'    => count( $users ),
 		'response' => $mailchimp->batch( $operations ),
 	);
 	return $response;

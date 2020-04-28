@@ -16,16 +16,23 @@ class Mailchimp_API {
 
 	/**
 	 * Construct
-	 *
-	 * @param string $list_id Mailchimp audience/list ID.
 	 */
-	public function __construct( string $list_id = '' ) {
-		// if ( ! $list_id ) {
-		// die( 'Mailchimp Sync Error: Please provide a list ID.' );
-		// }
-		// $this->list_id = $list_id;
+	public function __construct() {
+		// checks if the list is set in the <select> element and submitted, if not then check if the constant has been set for a list, otherwise use the first list in mailchimp.
+		$this->list_id = isset( $_POST['mailchimp_list'] ) ? filter_input( INPUT_POST, 'mailchimp_list', FILTER_SANITIZE_STRING ) : MCSYNC_LIST;
+		$lists         = $this->get_lists();
+		$this->lists   = isset( $lists->lists ) ? $lists->lists : false;
+		$first_list    = ! empty( $this->lists[0]->id ) ? $this->lists[0]->id : false;
+		if ( empty( MCSYNC_LIST ) && ! empty( $first_list ) ) {
+			$this->list_id = $first_list;
+		}
 	}
 
+	/**
+	 * Set the list ID for this object
+	 *
+	 * @param string $list_id List ID.
+	 */
 	public function set_list_id( $list_id ) {
 		$this->list_id = $list_id;
 	}
@@ -164,9 +171,44 @@ class Mailchimp_API {
 	}
 
 
+	/** Get lists */
 	public function get_lists() {
 		$response = $this->get( 'lists' );
 		return $response;
+	}
+
+	/** Get tags/segments */
+	public function get_tags() {
+		$response = $this->get( "lists/{$this->list_id}/segments" );
+		if ( ! $response || isset( $response->detail ) ) {
+			echo 'An error occurred while getting tags/segments.';
+			$response = false;
+		}
+
+		$tags = array();
+
+		if ( ! empty( $response->segments ) ) {
+			foreach ( $response->segments as $tag ) {
+				$tags[] = array(
+					'id'   => $tag->id,
+					'name' => $tag->name,
+				);
+			}
+		}
+		return $tags;
+	}
+
+	/**
+	 * Add tag to member
+	 *
+	 * @param string $email Email address.
+	 * @param string $tag_id Tag ID.
+	 * @return $response
+	 */
+	public function add_tag_to_member( $email, $tag_id ) {
+		$data     = array( 'email_address' => $email );
+		$response = $this->post( "lists/{$this->list_id}/segments/{$tag_id}/members", $data );
+		return $reponse;
 	}
 
 	/**
@@ -233,9 +275,9 @@ class Mailchimp_API {
 	 * @return $response
 	 */
 	public function batch( array $operations ) {
-		$data = new stdClass();
+		$data             = new stdClass();
 		$data->operations = $operations;
-		$response = $this->post( 'batches', $data );
+		$response         = $this->post( 'batches', $data );
 		return $response;
 	}
 
