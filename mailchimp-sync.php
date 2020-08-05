@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: UnionCentrics - Mailchimp Sync
- * Plugin URI: https://github.com/icentrics/mailchimp-sync.git
+ * Plugin Name: Mailchimp Sync
+ * Plugin URI: https://github.com/trvswgnr/mailchimp-sync.git
  * Description: Sync contacts between WordPress and Mailchimp.
  * Version: 1.1.0
- * Author: UnionCentrics.com
- * Author URI: https://unioncentrics.com
+ * Author: Travis Aaron Wagner
+ * Author URI: https://travisaw.com
  * Text Domain: mailchimp-sync
  *
  * @author Travis Aaron Wagner
@@ -21,11 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once 'config.php';
 require_once 'inc/class-mailchimp-api.php';
 require_once 'inc/utility.php';
-
-// register_activation_hook( __DIR__ . '/mailchimp-sync.php', 'mcs_plugin_activate' );
-// function mcs_plugin_activate() {
-// file_put_contents( MCSYNC_DIR . 'data/key.php', '' );
-// }
 
 $mailchimp = new Mailchimp_API();
 
