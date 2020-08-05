@@ -43,7 +43,7 @@ function generate_hash( $len = 10 ) {
 }
 
 /**
- * Undocumented function
+ * Add WP users to MailChimp List
  *
  * @return $response
  */
