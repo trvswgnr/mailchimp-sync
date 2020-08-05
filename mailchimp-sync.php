@@ -22,6 +22,13 @@ require_once 'config.php';
 require_once 'inc/class-mailchimp-api.php';
 require_once 'inc/utility.php';
 
+register_activation_hook( __DIR__ . '/mailchimp-sync.php', 'mcs_plugin_activate' );
+function mcs_plugin_activate() {
+	if ( ! file_exists( MCSYNC_DIR . 'data' ) ) {
+		mkdir( MCSYNC_DIR . 'data', 0775, true );
+	}
+}
+
 $mailchimp = new Mailchimp_API();
 
 if ( isset( $_POST['mailchimp_add_members'] ) ) {
