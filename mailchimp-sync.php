@@ -3,7 +3,7 @@
  * Plugin Name: Mailchimp Sync
  * Plugin URI: https://github.com/trvswgnr/mailchimp-sync.git
  * Description: Sync contacts between WordPress and Mailchimp.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Travis Aaron Wagner
  * Author URI: https://travisaw.com
  * Text Domain: mailchimp-sync
